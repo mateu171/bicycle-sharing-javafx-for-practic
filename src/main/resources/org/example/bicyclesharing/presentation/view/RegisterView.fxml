@@ -25,7 +25,7 @@
         <StackPane>
           <TextField fx:id="loginField" prefWidth="250"  styleClass="text-field-style"/>
           <ImageView fitHeight="15" fitWidth="15" pickOnBounds="true" preserveRatio="true"
-            style="-fx-translate-x: -115;">
+            style="-fx-translate-x: -105;">
             <image><Image url="@../../art/icon/user.png"/></image>
           </ImageView>
         </StackPane>
@@ -36,7 +36,7 @@
         <StackPane>
           <PasswordField fx:id="passwordField" prefWidth="250" styleClass="text-field-style" />
           <ImageView fitHeight="15" fitWidth="15" pickOnBounds="true" preserveRatio="true"
-            style="-fx-translate-x: -115;">
+            style="-fx-translate-x: -105;">
             <image><Image url="@../../art/icon/key.png"/></image>
           </ImageView>
         </StackPane>
@@ -47,7 +47,7 @@
         <StackPane>
           <TextField fx:id="emailField" prefWidth="250" styleClass="text-field-style" />
           <ImageView fitHeight="15" fitWidth="15" pickOnBounds="true" preserveRatio="true"
-            style="-fx-translate-x: -115;">
+            style="-fx-translate-x: -105;">
             <image><Image url="@../../art/icon/mail.png"/></image>
           </ImageView>
         </StackPane>

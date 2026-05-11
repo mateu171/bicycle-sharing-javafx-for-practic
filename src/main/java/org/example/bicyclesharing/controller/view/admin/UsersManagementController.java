@@ -112,17 +112,10 @@ public class UsersManagementController extends BaseController {
           }
         });
 
-        roleComboBox.setOnAction(e -> {
-          Role selectedRole = roleComboBox.getValue();
-          if (selectedRole != null && selectedRole != user.getRole()) {
-            viewModel.changeRole(user, selectedRole);
-          }
-        });
-
         Button deleteButton = new Button(LocalizationManager.getStringByKey("admin.delete.button"));
         deleteButton.getStyleClass().add("button-danger");
         deleteButton.setOnAction(e -> {
-          viewModel.deleteUser(user);
+
         });
 
         Region spacer = new Region();

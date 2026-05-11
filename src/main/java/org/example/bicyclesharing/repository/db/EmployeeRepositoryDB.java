@@ -1,23 +1,42 @@
 package org.example.bicyclesharing.repository.db;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+
 import org.example.bicyclesharing.domain.Impl.Employee;
 import org.example.bicyclesharing.repository.EmployeeRepository;
-import org.springframework.jdbc.core.RowMapper;
 
 public class EmployeeRepositoryDB extends BaseRepositoryDB<Employee, UUID> implements EmployeeRepository {
 
   @Override
   public List<Employee> findByStationId(UUID id) {
-    String sql = "SELECT * FROM EMPLOYEES WHERE station_id = ?";
-    return jdbcTemplate.query(sql, rowMapper(), id.toString());
+    return queryList("SELECT * FROM EMPLOYEES WHERE station_id = ?", id.toString());
   }
 
   @Override
   public List<Employee> findByName(String name) {
-    String sql = "SELECT * FROM EMPLOYEES WHERE LOWER(name) LIKE LOWER(?)";
-    return jdbcTemplate.query(sql, rowMapper(), "%" + name + "%");
+    return queryList("SELECT * FROM EMPLOYEES WHERE LOWER(name) LIKE LOWER(?)", "%" + name + "%");
+  }
+
+  @Override
+  protected Employee map(ResultSet rs) throws SQLException {
+    String stationRaw = rs.getString("station_id");
+
+    UUID stationId = stationRaw != null && !stationRaw.isBlank()
+        ? UUID.fromString(stationRaw)
+        : null;
+
+    Employee employee = new Employee(
+        rs.getString("name"),
+        rs.getString("phone_number"),
+        stationId,
+        String.valueOf(rs.getDouble("salary"))
+    );
+
+    employee.setId(UUID.fromString(rs.getString("id")));
+    return employee;
   }
 
   @Override
@@ -42,37 +61,22 @@ public class EmployeeRepositoryDB extends BaseRepositoryDB<Employee, UUID> imple
   }
 
   @Override
-  protected RowMapper<Employee> rowMapper() {
-    return (rs, rowNum) -> {
-      Employee employee = new Employee(
-          rs.getString("name"),
-          rs.getString("phone_number"),
-          UUID.fromString(rs.getString("station_id")),
-          rs.getString("salary")
-      );
-
-      employee.setId(UUID.fromString(rs.getString("id")));
-      return employee;
-    };
-  }
-
-  @Override
   protected Object[] getInsertValues(Employee entity) {
-    return new Object[] {
+    return new Object[]{
         entity.getId().toString(),
         entity.getName(),
         entity.getPhoneNumber(),
-        entity.getStationId().toString(),
+        entity.getStationId() != null ? entity.getStationId().toString() : null,
         entity.getSalary()
     };
   }
 
   @Override
   protected Object[] getUpdateValues(Employee entity) {
-    return new Object[] {
+    return new Object[]{
         entity.getName(),
         entity.getPhoneNumber(),
-        entity.getStationId().toString(),
+        entity.getStationId() != null ? entity.getStationId().toString() : null,
         entity.getSalary(),
         entity.getId().toString()
     };
@@ -80,7 +84,7 @@ public class EmployeeRepositoryDB extends BaseRepositoryDB<Employee, UUID> imple
 
   @Override
   protected String[] getUpdateColumns() {
-    return new String[] {
+    return new String[]{
         "name",
         "phone_number",
         "station_id",

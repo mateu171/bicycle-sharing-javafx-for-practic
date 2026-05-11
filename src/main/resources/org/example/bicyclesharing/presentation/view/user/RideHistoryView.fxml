@@ -9,14 +9,6 @@
   prefHeight="400" prefWidth="600"
   styleClass="stack-pane-root">
 
-  <VBox spacing="15" prefWidth="500">
-
-    <Label fx:id="title" styleClass="label-title"/>
-
-    <ListView fx:id="rentalList"
-      VBox.vgrow="ALWAYS"
-      style="-fx-background-color: transparent;"/>
-
-  </VBox>
+  <Label text="Історія поїздок" alignment="CENTER" />
 
 </StackPane>

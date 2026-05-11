@@ -76,9 +76,11 @@ public class BicyclesManagementViewModel extends BaseViewModel {
   public void deleteBicycle(Bicycle bicycle) {
     if (bicycle == null) return;
 
+    if(bicycle.getStationId() != null) {
     Station station = stationService.getById(bicycle.getStationId());
-    station.removeBicycleId(bicycle.getId());
-    stationService.update(station);
+      station.removeBicycleId(bicycle.getId());
+      stationService.update(station);
+    }
     bicycleService.deleteById(bicycle.getId());
     applyFilters();
   }

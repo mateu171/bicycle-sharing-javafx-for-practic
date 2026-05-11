@@ -24,7 +24,7 @@
       <VBox alignment="CENTER" spacing="2">
         <StackPane>
           <TextField fx:id="loginField" prefWidth="250" styleClass="text-field-style" />
-          <ImageView fitHeight="15" fitWidth="15" preserveRatio="true" style="-fx-translate-x: -115;">
+          <ImageView fitHeight="15" fitWidth="15" preserveRatio="true" style="-fx-translate-x: -105;">
             <image>
               <Image url="@../../art/icon/user.png" />
             </image>
@@ -35,7 +35,7 @@
       <VBox alignment="CENTER" spacing="2">
         <StackPane>
           <PasswordField fx:id="passwordField" prefWidth="250" styleClass="text-field-style" />
-          <ImageView fitHeight="15" fitWidth="15" preserveRatio="true" style="-fx-translate-x: -115;">
+          <ImageView fitHeight="15" fitWidth="15" preserveRatio="true" style="-fx-translate-x: -105;">
             <image>
               <Image url="@../../art/icon/key.png" />
             </image>

@@ -14,6 +14,7 @@ module org.example.bicyclesharing {
   requires java.prefs;
   requires jdk.jsobject;
   requires spring.jdbc;
+  requires atlantafx.base;
 
   opens org.example.bicyclesharing to javafx.fxml;
   exports org.example.bicyclesharing;
@@ -26,8 +27,6 @@ module org.example.bicyclesharing {
   opens org.example.bicyclesharing.viewModel.user to javafx.fxml;
   opens org.example.bicyclesharing.controller.view.admin to javafx.fxml;
   opens org.example.bicyclesharing.controller.view.admin.modalController to javafx.fxml;
-  opens org.example.bicyclesharing.controller.view.user.modalController to javafx.fxml;
-  opens org.example.bicyclesharing.controller.view.mechanic to javafx.fxml;
 
   opens org.example.bicyclesharing.domain.Impl to javafx.base;
 }

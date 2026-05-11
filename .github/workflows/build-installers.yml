@@ -1,0 +1,119 @@
+name: Build Installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Install WiX Toolset
+        run: choco install wixtoolset --yes
+
+      - name: Build fat jar
+        run: mvn clean package
+
+      - name: Build MSI installer
+        run: |
+          jpackage `
+            --type msi `
+            --name "BicycleSharing" `
+            --app-version "1.0.0" `
+            --vendor "Serhii" `
+            --description "Bicycle Sharing System" `
+            --input target `
+            --main-jar BicycleSharing-fat.jar `
+            --main-class org.example.bicyclesharing.Launcher `
+            --dest dist `
+            --win-dir-chooser `
+            --win-menu `
+            --win-shortcut
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: BicycleSharing-Windows
+          path: dist/*.msi
+
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Build fat jar
+        run: mvn clean package
+
+      - name: Build DMG installer
+        run: |
+          jpackage \
+            --type dmg \
+            --name "BicycleSharing" \
+            --app-version "1.0.0" \
+            --vendor "Serhii" \
+            --input target \
+            --main-jar BicycleSharing-fat.jar \
+            --main-class org.example.bicyclesharing.Launcher \
+            --dest dist \
+            --mac-package-name "bicyclesharing" \
+            --mac-package-identifier "org.example.bicyclesharing"
+
+      - name: Upload macOS installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: BicycleSharing-macOS
+          path: dist/*.dmg
+
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Build fat jar
+        run: mvn clean package
+
+      - name: Build DEB installer
+        run: |
+          jpackage \
+            --type deb \
+            --name "bicyclesharing" \
+            --app-version "1.0.0" \
+            --vendor "Serhii" \
+            --input target \
+            --main-jar BicycleSharing-fat.jar \
+            --main-class org.example.bicyclesharing.Launcher \
+            --dest dist \
+            --linux-package-name "bicyclesharing" \
+            --linux-app-category "Education" \
+            --linux-shortcut
+
+      - name: Upload Linux installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: BicycleSharing-Linux
+          path: dist/*.deb

@@ -29,12 +29,6 @@ public class MainMenuController extends BaseWindowController{
   @FXML private Button btnBicycles;
   @FXML private Button btnStations;
 
-  @FXML private Button btnMechanicIssues;
-  @FXML private Button btnMechanicService;
-
-  @FXML private HBox mechanicIssuesContainer;
-  @FXML private HBox mechanicServiceContainer;
-
   @FXML private HBox adminUsersContainer;
   @FXML private HBox adminEmployeesContainer;
   @FXML private HBox adminBicyclesContainer;
@@ -58,9 +52,8 @@ public class MainMenuController extends BaseWindowController{
 
     if (currentUser.getRole() == Role.ADMIN) {
       onShowUsers();
-    } else if (currentUser.getRole() == Role.MECHANIC) {
-      onShowMechanicIssues();
-    } else {
+    }
+     else {
       onShowProfile();
     }
   }
@@ -82,8 +75,6 @@ public class MainMenuController extends BaseWindowController{
     btnEmployees.textProperty().bind(viewModel.employeesButtonText);
     btnBicycles.textProperty().bind(viewModel.bicyclesButtonText);
     btnStations.textProperty().bind(viewModel.stationButtonText);
-    btnMechanicIssues.textProperty().bind(viewModel.mechanicIssuesButtonText);
-    btnMechanicService.textProperty().bind(viewModel.mechanicServiceButtonText);
   }
 
   @Override
@@ -146,16 +137,6 @@ public class MainMenuController extends BaseWindowController{
     navigationService.load("/org/example/bicyclesharing/presentation/view/user/MapView.fxml");
   }
 
-  @FXML
-  public void onShowMechanicIssues() {
-    navigationService.load("/org/example/bicyclesharing/presentation/view/mechanic/MechanicIssuesView.fxml");
-  }
-
-  @FXML
-  public void onShowMechanicService() {
-    navigationService.load("/org/example/bicyclesharing/presentation/view/mechanic/MechanicServiceView.fxml");
-  }
-
   private void applyTheme() {
     contentPane.getScene().getRoot().getStylesheets().clear();
     contentPane.getScene().getRoot().getStylesheets().add(getClass().getResource(ThemeManager.getSavedTheme()).toExternalForm());
@@ -176,7 +157,6 @@ public class MainMenuController extends BaseWindowController{
 
   private void configureMenuByRole(User currentUser) {
     boolean isAdmin = currentUser != null && currentUser.getRole() == Role.ADMIN;
-    boolean isMechanic = currentUser != null && currentUser.getRole() == Role.MECHANIC;
     boolean isClient = currentUser != null && currentUser.getRole() == Role.CLIENT;
 
     adminUsersContainer.setVisible(isAdmin);
@@ -190,12 +170,6 @@ public class MainMenuController extends BaseWindowController{
 
     adminStationContainer.setVisible(isAdmin);
     adminStationContainer.setManaged(isAdmin);
-
-    mechanicIssuesContainer.setVisible(isMechanic);
-    mechanicIssuesContainer.setManaged(isMechanic);
-
-    mechanicServiceContainer.setVisible(isMechanic);
-    mechanicServiceContainer.setManaged(isMechanic);
 
     mapContainer.setVisible(isClient);
     mapContainer.setManaged(isClient);

@@ -18,26 +18,35 @@
 }
 
 .text-field-style {
-  -fx-background-color: transparent;
-  -fx-border-color: #ccc;
-  -fx-border-width: 0 0 1 0;
-  -fx-padding: 5 5 5 25;
+  -fx-background-color: rgba(255,255,255,0.85);
+  -fx-background-radius: 10;
+  -fx-border-color: #d7dee8;
+  -fx-border-radius: 10;
+  -fx-border-width: 1;
+  -fx-padding: 8 10 8 30;
+  -fx-font-size: 14px;
+  -fx-text-fill: #364153;
+  -fx-prompt-text-fill: #7b8794;
 }
 
 .text-field-style:focused {
+  -fx-background-color: white;
   -fx-border-color: #FFE600;
-  -fx-border-width: 0 0 2 0;
+  -fx-border-width: 2;
 }
 
 .button-primary {
   -fx-background-color: #FFE600;
-  -fx-background-radius: 10;
+  -fx-background-radius: 12;
+  -fx-text-fill: #111827;
+  -fx-font-size: 14px;
   -fx-font-weight: bold;
+  -fx-padding: 8 18;
+  -fx-cursor: hand;
 }
 
 .button-primary:hover {
   -fx-background-color: #FFD000;
-  -fx-cursor: hand;
 }
 
 .button-primary:pressed {
@@ -46,17 +55,20 @@
 
 .button-secondary {
   -fx-background-color: transparent;
-  -fx-text-fill: #364153;
+  -fx-text-fill: #5b6472;
+  -fx-font-size: 13px;
 }
+
 .button-secondary:hover {
-  -fx-text-fill: #000000;
+  -fx-text-fill: #111827;
   -fx-underline: true;
   -fx-cursor: hand;
 }
 
 .label-error {
   -fx-font-size: 12px;
-  -fx-text-fill: #d32f2f;
+  -fx-text-fill: #e53935;
+  -fx-padding: 2 0 0 0;
 }
 
 .title-button {
@@ -365,9 +377,6 @@
   -fx-background-color: #a93226;
 }
 
-
-
-
 .users-page {
   -fx-padding: 20;
 }
@@ -436,7 +445,7 @@
 }
 
 .modal-root {
-  -fx-background-color: tranparent;
+  -fx-background-color: rgba(0, 0, 0, 0.20);
 }
 
 .modal-card {

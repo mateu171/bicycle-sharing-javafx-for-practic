@@ -1,40 +1,66 @@
 package org.example.bicyclesharing.repository.db;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 import org.example.bicyclesharing.domain.Impl.Station;
 import org.example.bicyclesharing.repository.StationRepository;
-import org.springframework.jdbc.core.RowMapper;
 
 public class StationRepositoryDB extends BaseRepositoryDB<Station, UUID> implements StationRepository {
 
   @Override
   public List<Station> getByName(String name) {
-    String sql = "SELECT * FROM STATIONS WHERE LOWER(name) LIKE LOWER(?)";
-    return jdbcTemplate.query(sql, rowMapper(), "%" + name + "%");
+    return queryList("SELECT * FROM STATIONS WHERE LOWER(name) LIKE LOWER(?)", "%" + name + "%");
   }
 
   @Override
   public Station getById(UUID id) {
-    String sql = "SELECT * FROM STATIONS WHERE id = ?";
-    return jdbcTemplate.queryForObject(sql, rowMapper(), id.toString());
+    List<Station> stations = queryList("SELECT * FROM STATIONS WHERE id = ?", id.toString());
+    return stations.isEmpty() ? null : stations.get(0);
+  }
+
+  @Override
+  protected Station map(ResultSet rs) throws SQLException {
+    UUID id = UUID.fromString(rs.getString("id"));
+    String name = rs.getString("name");
+    double latitude = rs.getDouble("latitude");
+    double longitude = rs.getDouble("longitude");
+
+    String bicyclesRaw = rs.getString("bicycles_id");
+    List<UUID> bicyclesId = parseUuidList(bicyclesRaw);
+
+    String employeeRaw = rs.getString("employee_id");
+    UUID employeeId = employeeRaw != null && !employeeRaw.isBlank()
+        ? UUID.fromString(employeeRaw)
+        : null;
+
+    return Station.fromDatabase(
+        id,
+        name,
+        latitude,
+        longitude,
+        bicyclesId,
+        employeeId
+    );
   }
 
   @Override
   protected String getCreateTableSQL() {
     return """
-        CREATE TABLE IF NOT EXISTS STATIONS (
-            id VARCHAR(36) PRIMARY KEY,
-            name VARCHAR(255) NOT NULL,
-            latitude DOUBLE NOT NULL,
-            longitude DOUBLE NOT NULL,
-            bicycles_id TEXT,
-            employee_id VARCHAR(36)
-        )
-        """;
+                CREATE TABLE IF NOT EXISTS STATIONS (
+                    id VARCHAR(36) PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    latitude DOUBLE NOT NULL,
+                    longitude DOUBLE NOT NULL,
+                    bicycles_id TEXT,
+                    employee_id VARCHAR(36)
+                )
+                """;
   }
 
   @Override
@@ -48,35 +74,8 @@ public class StationRepositoryDB extends BaseRepositoryDB<Station, UUID> impleme
   }
 
   @Override
-  protected RowMapper<Station> rowMapper() {
-    return (rs, rowNum) -> {
-      UUID id = UUID.fromString(rs.getString("id"));
-      String name = rs.getString("name");
-      double latitude = rs.getDouble("latitude");
-      double longitude = rs.getDouble("longitude");
-
-      String bicyclesRaw = rs.getString("bicycles_id");
-      List<UUID> bicyclesId = parseUuidList(bicyclesRaw);
-
-      String employeeRaw = rs.getString("employee_id");
-      UUID employeeId = employeeRaw != null && !employeeRaw.isBlank()
-          ? UUID.fromString(employeeRaw)
-          : null;
-
-      return Station.fromDatabase(
-          id,
-          name,
-          latitude,
-          longitude,
-          bicyclesId,
-          employeeId
-      );
-    };
-  }
-
-  @Override
   protected Object[] getInsertValues(Station entity) {
-    return new Object[] {
+    return new Object[]{
         entity.getId().toString(),
         entity.getName(),
         entity.getLatitude(),
@@ -88,7 +87,7 @@ public class StationRepositoryDB extends BaseRepositoryDB<Station, UUID> impleme
 
   @Override
   protected Object[] getUpdateValues(Station entity) {
-    return new Object[] {
+    return new Object[]{
         entity.getName(),
         entity.getLatitude(),
         entity.getLongitude(),
@@ -100,7 +99,7 @@ public class StationRepositoryDB extends BaseRepositoryDB<Station, UUID> impleme
 
   @Override
   protected String[] getUpdateColumns() {
-    return new String[] {
+    return new String[]{
         "name",
         "latitude",
         "longitude",

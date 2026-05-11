@@ -1,21 +1,21 @@
 package org.example.bicyclesharing.repository.db;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+
 import org.example.bicyclesharing.domain.Impl.Bicycle;
 import org.example.bicyclesharing.domain.enums.StateBicycle;
 import org.example.bicyclesharing.domain.enums.TypeBicycle;
 import org.example.bicyclesharing.repository.BicycleRepository;
-import org.springframework.jdbc.core.RowMapper;
 
-public class BicycleRepositoryDB
-    extends BaseRepositoryDB<Bicycle, UUID>
-    implements BicycleRepository {
+public class BicycleRepositoryDB extends BaseRepositoryDB<Bicycle, UUID> implements BicycleRepository {
 
   @Override
   public List<Bicycle> findByState(StateBicycle stateBicycle) {
     String sql = "SELECT * FROM BICYCLES WHERE state = ?";
-    return jdbcTemplate.query(sql, rowMapper(), stateBicycle.name());
+    return queryList(sql, stateBicycle.name());
   }
 
   @Override
@@ -29,33 +29,31 @@ public class BicycleRepositoryDB
   }
 
   @Override
-  protected RowMapper<Bicycle> rowMapper() {
-    return (rs, rowNum) -> {
-      String rentalIdRaw = rs.getString("rental_id");
-      UUID rentalId = rentalIdRaw != null && !rentalIdRaw.isBlank()
-          ? UUID.fromString(rentalIdRaw)
-          : null;
+  protected Bicycle map(ResultSet rs) throws SQLException {
+    String rentalIdRaw = rs.getString("rental_id");
+    UUID rentalId = rentalIdRaw != null && !rentalIdRaw.isBlank()
+        ? UUID.fromString(rentalIdRaw)
+        : null;
 
-      String stationIdRaw = rs.getString("station_id");
-      UUID stationId = stationIdRaw != null && !stationIdRaw.isBlank()
-          ? UUID.fromString(stationIdRaw)
-          : null;
+    String stationIdRaw = rs.getString("station_id");
+    UUID stationId = stationIdRaw != null && !stationIdRaw.isBlank()
+        ? UUID.fromString(stationIdRaw)
+        : null;
 
-      return Bicycle.fromDatabase(
-          UUID.fromString(rs.getString("id")),
-          rs.getString("model"),
-          TypeBicycle.valueOf(rs.getString("type_bicycle")),
-          StateBicycle.valueOf(rs.getString("state")),
-          rs.getDouble("price_per_minute"),
-          rentalId,
-          stationId
-      );
-    };
+    return Bicycle.fromDatabase(
+        UUID.fromString(rs.getString("id")),
+        rs.getString("model"),
+        TypeBicycle.valueOf(rs.getString("type_bicycle")),
+        StateBicycle.valueOf(rs.getString("state")),
+        rs.getDouble("price_per_minute"),
+        rentalId,
+        stationId
+    );
   }
 
   @Override
   protected Object[] getInsertValues(Bicycle entity) {
-    return new Object[] {
+    return new Object[]{
         entity.getId().toString(),
         entity.getModel(),
         entity.getTypeBicycle().name(),
@@ -68,7 +66,7 @@ public class BicycleRepositoryDB
 
   @Override
   protected Object[] getUpdateValues(Bicycle entity) {
-    return new Object[] {
+    return new Object[]{
         entity.getModel(),
         entity.getTypeBicycle().name(),
         entity.getState().name(),
@@ -86,7 +84,7 @@ public class BicycleRepositoryDB
 
   @Override
   protected String[] getUpdateColumns() {
-    return new String[] {
+    return new String[]{
         "model",
         "type_bicycle",
         "state",

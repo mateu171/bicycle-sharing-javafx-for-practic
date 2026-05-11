@@ -2,6 +2,7 @@ package org.example.bicyclesharing.services;
 
 import java.util.UUID;
 import org.example.bicyclesharing.domain.Impl.User;
+import org.example.bicyclesharing.domain.enums.Role;
 import org.example.bicyclesharing.domain.security.PasswordHasher;
 import org.example.bicyclesharing.repository.Repository;
 import org.example.bicyclesharing.repository.UserRepository;
@@ -14,6 +15,7 @@ public class UserService extends BaseService<User, UUID> {
   public UserService(UserRepository userRepository, PasswordHasher passwordHasher) {
     this.userRepository = userRepository;
     this.passwordHasher = passwordHasher;
+    createDefaultAdminIfNotExists();
   }
 
   public boolean existsByLogin(String login) {
@@ -33,6 +35,22 @@ public class UserService extends BaseService<User, UUID> {
         .orElse(null);
   }
 
+  public void createDefaultAdminIfNotExists() {
+    User admin = userRepository.findByLogin("admin");
+
+    if (admin != null) {
+      return;
+    }
+
+    User defaultAdmin = User.create(
+        "admin",
+        "admin123",
+        "admin@gmail.com",
+        Role.ADMIN
+    );
+
+    userRepository.save(defaultAdmin);
+  }
   @Override
   protected Repository<User, UUID> getRepository() {
     return userRepository;

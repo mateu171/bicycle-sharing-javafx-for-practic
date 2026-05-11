@@ -1,16 +1,16 @@
 package org.example.bicyclesharing.repository.db;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
+
 import org.example.bicyclesharing.domain.Impl.Transaction;
 import org.example.bicyclesharing.domain.enums.TransactionType;
 import org.example.bicyclesharing.repository.TransactionRepository;
-import org.springframework.jdbc.core.RowMapper;
 
-public class TransactionRepositoryDB
-    extends BaseRepositoryDB<Transaction, UUID>
-    implements TransactionRepository {
+public class TransactionRepositoryDB extends BaseRepositoryDB<Transaction, UUID> implements TransactionRepository {
 
   @Override
   public List<Transaction> findByUserId(UUID userId) {
@@ -20,7 +20,21 @@ public class TransactionRepositoryDB
                 ORDER BY TIMESTAMP DESC
                 """;
 
-    return jdbcTemplate.query(sql, rowMapper(), userId.toString());
+    return queryList(sql, userId.toString());
+  }
+
+  @Override
+  protected Transaction map(ResultSet rs) throws SQLException {
+    Transaction transaction = new Transaction(
+        UUID.fromString(rs.getString("USER_ID")),
+        rs.getDouble("AMOUNT"),
+        TransactionType.valueOf(rs.getString("TYPE")),
+        rs.getTimestamp("TIMESTAMP").toLocalDateTime(),
+        rs.getString("DESCRIPTION")
+    );
+
+    transaction.setId(UUID.fromString(rs.getString("ID")));
+    return transaction;
   }
 
   @Override
@@ -40,7 +54,7 @@ public class TransactionRepositoryDB
 
   @Override
   protected String[] getUpdateColumns() {
-    return new String[] {
+    return new String[]{
         "USER_ID",
         "AMOUNT",
         "TYPE",
@@ -50,24 +64,8 @@ public class TransactionRepositoryDB
   }
 
   @Override
-  protected RowMapper<Transaction> rowMapper() {
-    return (rs, rowNum) -> {
-      Transaction transaction = new Transaction(
-          UUID.fromString(rs.getString("USER_ID")),
-          rs.getDouble("AMOUNT"),
-          TransactionType.valueOf(rs.getString("TYPE")),
-          rs.getTimestamp("TIMESTAMP").toLocalDateTime(),
-          rs.getString("DESCRIPTION")
-      );
-
-      transaction.setId(UUID.fromString(rs.getString("ID")));
-      return transaction;
-    };
-  }
-
-  @Override
   protected Object[] getInsertValues(Transaction entity) {
-    return new Object[] {
+    return new Object[]{
         entity.getId().toString(),
         entity.getUserId().toString(),
         entity.getAmount(),
@@ -79,7 +77,7 @@ public class TransactionRepositoryDB
 
   @Override
   protected Object[] getUpdateValues(Transaction entity) {
-    return new Object[] {
+    return new Object[]{
         entity.getUserId().toString(),
         entity.getAmount(),
         entity.getType().name(),

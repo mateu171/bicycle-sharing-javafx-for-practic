@@ -1,11 +1,13 @@
 package org.example.bicyclesharing.repository.db;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
+
 import org.example.bicyclesharing.domain.Impl.User;
 import org.example.bicyclesharing.domain.enums.Role;
 import org.example.bicyclesharing.repository.UserRepository;
-import org.springframework.jdbc.core.RowMapper;
 
 public class UserRepositoryDB extends BaseRepositoryDB<User, UUID> implements UserRepository {
 
@@ -25,8 +27,8 @@ public class UserRepositoryDB extends BaseRepositoryDB<User, UUID> implements Us
   }
 
   @Override
-  protected RowMapper<User> rowMapper() {
-    return (rs, rowNum) -> User.fromDatabase(
+  protected User map(ResultSet rs) throws SQLException {
+    return User.fromDatabase(
         UUID.fromString(rs.getString("id")),
         rs.getString("login"),
         rs.getString("password"),
@@ -38,7 +40,7 @@ public class UserRepositoryDB extends BaseRepositoryDB<User, UUID> implements Us
 
   @Override
   protected Object[] getInsertValues(User entity) {
-    return new Object[] {
+    return new Object[]{
         entity.getId().toString(),
         entity.getLogin(),
         entity.getHashedPassword(),
@@ -50,7 +52,7 @@ public class UserRepositoryDB extends BaseRepositoryDB<User, UUID> implements Us
 
   @Override
   protected Object[] getUpdateValues(User entity) {
-    return new Object[] {
+    return new Object[]{
         entity.getLogin(),
         entity.getHashedPassword(),
         entity.getEmail(),
@@ -62,7 +64,7 @@ public class UserRepositoryDB extends BaseRepositoryDB<User, UUID> implements Us
 
   @Override
   protected String[] getUpdateColumns() {
-    return new String[] {
+    return new String[]{
         "login",
         "password",
         "email",
@@ -74,7 +76,7 @@ public class UserRepositoryDB extends BaseRepositoryDB<User, UUID> implements Us
   @Override
   public User findByLogin(String login) {
     String sql = "SELECT * FROM USERS WHERE login = ?";
-    List<User> users = jdbcTemplate.query(sql, rowMapper(), login);
+    List<User> users = queryList(sql, login);
     return users.isEmpty() ? null : users.get(0);
   }
 

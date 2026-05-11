@@ -8,14 +8,6 @@
   fx:controller="org.example.bicyclesharing.controller.view.user.TransactionController"
   styleClass="stack-pane-root">
 
-  <VBox spacing="15">
-
-    <Label fx:id="title" styleClass="label-title"/>
-
-    <ListView fx:id="transactionListView"
-      VBox.vgrow="ALWAYS"
-      styleClass="transaction-list"/>
-
-  </VBox>
+  <Label alignment="CENTER" text="Транкзанкції"/>
 
 </StackPane>

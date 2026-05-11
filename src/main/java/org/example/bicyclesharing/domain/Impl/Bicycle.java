@@ -123,10 +123,7 @@ public class Bicycle extends BaseEntity {
   }
 
   public void setStationId(UUID stationId) {
-    cleanErrors("stationId");
-    if (stationId == null) {
-      addError("stationId", "bicycle.station.empty");
-    }
+
     this.stationId = stationId;
   }
 }
