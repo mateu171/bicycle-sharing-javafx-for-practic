@@ -1,5 +1,6 @@
 package org.example.bicyclesharing.repository.db;
 
+import java.nio.file.Paths;
 import org.example.bicyclesharing.repository.Repository;
 
 import java.io.IOException;
@@ -23,7 +24,14 @@ public abstract class BaseRepositoryDB<T, ID> implements Repository<T, ID> {
 
   private void createDataFolder() {
     try {
-      Files.createDirectories(Path.of("data"));
+      Path dataPath = Paths.get(
+          System.getProperty("user.home"),
+          "BicycleSharing",
+          "data"
+      );
+
+      Files.createDirectories(dataPath);
+
     } catch (IOException e) {
       throw new RuntimeException("Не вдалося створити папку data", e);
     }
