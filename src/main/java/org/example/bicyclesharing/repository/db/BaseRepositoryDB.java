@@ -13,7 +13,15 @@ import java.util.Optional;
 
 public abstract class BaseRepositoryDB<T, ID> implements Repository<T, ID> {
 
-  private static final String DB_URL = "jdbc:h2:file:./data/bicyclesharing";
+  private static final Path DATA_DIR = Paths.get(
+      System.getProperty("user.home"),
+      "BicycleSharing",
+      "data"
+  );
+
+  private static final String DB_URL =
+      "jdbc:h2:file:" + DATA_DIR.resolve("bicyclesharing").toAbsolutePath();
+
   private static final String DB_USER = "sa";
   private static final String DB_PASSWORD = "";
 
@@ -24,14 +32,7 @@ public abstract class BaseRepositoryDB<T, ID> implements Repository<T, ID> {
 
   private void createDataFolder() {
     try {
-      Path dataPath = Paths.get(
-          System.getProperty("user.home"),
-          "BicycleSharing",
-          "data"
-      );
-
-      Files.createDirectories(dataPath);
-
+      Files.createDirectories(DATA_DIR);
     } catch (IOException e) {
       throw new RuntimeException("Не вдалося створити папку data", e);
     }
