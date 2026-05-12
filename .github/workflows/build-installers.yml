@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - "v*"
+      - "v*.*.*"
 
 jobs:
   build-windows:
@@ -18,12 +18,13 @@ jobs:
         with:
           distribution: temurin
           java-version: 25
+          cache: maven
 
       - name: Install WiX Toolset
         run: choco install wixtoolset --yes
 
       - name: Build fat jar
-        run: mvn clean package
+        run: mvn clean package -DskipTests
 
       - name: Build MSI installer
         run: |
@@ -46,9 +47,10 @@ jobs:
         with:
           name: BicycleSharing-Windows
           path: dist/*.msi
+          compression-level: 0
 
   build-macos-intel:
-    runs-on: macos-13
+    runs-on: macos-15-intel
 
     steps:
       - uses: actions/checkout@v4
@@ -58,9 +60,10 @@ jobs:
         with:
           distribution: temurin
           java-version: 25
+          cache: maven
 
       - name: Build fat jar
-        run: mvn clean package
+        run: mvn clean package -DskipTests
 
       - name: Build Intel DMG installer
         run: |
@@ -73,7 +76,7 @@ jobs:
             --main-jar BicycleSharing-fat.jar \
             --main-class org.example.bicyclesharing.Launcher \
             --dest dist \
-            --mac-package-name "bicyclesharing" \
+            --mac-package-name "BicycleSharing" \
             --mac-package-identifier "org.example.bicyclesharing"
 
       - name: Rename Intel installer
@@ -85,6 +88,7 @@ jobs:
         with:
           name: BicycleSharing-macOS-Intel
           path: dist/BicycleSharing-macOS-Intel.dmg
+          compression-level: 0
 
   build-macos-apple-silicon:
     runs-on: macos-14
@@ -97,9 +101,10 @@ jobs:
         with:
           distribution: temurin
           java-version: 25
+          cache: maven
 
       - name: Build fat jar
-        run: mvn clean package
+        run: mvn clean package -DskipTests
 
       - name: Build Apple Silicon DMG installer
         run: |
@@ -112,7 +117,7 @@ jobs:
             --main-jar BicycleSharing-fat.jar \
             --main-class org.example.bicyclesharing.Launcher \
             --dest dist \
-            --mac-package-name "bicyclesharing" \
+            --mac-package-name "BicycleSharing" \
             --mac-package-identifier "org.example.bicyclesharing"
 
       - name: Rename Apple Silicon installer
@@ -124,6 +129,7 @@ jobs:
         with:
           name: BicycleSharing-macOS-AppleSilicon
           path: dist/BicycleSharing-macOS-AppleSilicon.dmg
+          compression-level: 0
 
   build-linux:
     runs-on: ubuntu-latest
@@ -136,9 +142,10 @@ jobs:
         with:
           distribution: temurin
           java-version: 25
+          cache: maven
 
       - name: Build fat jar
-        run: mvn clean package
+        run: mvn clean package -DskipTests
 
       - name: Build DEB installer
         run: |
@@ -160,3 +167,46 @@ jobs:
         with:
           name: BicycleSharing-Linux
           path: dist/*.deb
+          compression-level: 0
+
+  publish-release:
+    needs:
+      - build-windows
+      - build-macos-intel
+      - build-macos-apple-silicon
+      - build-linux
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all installers
+        uses: actions/download-artifact@v4
+        with:
+          path: installers
+          merge-multiple: true
+
+      - name: Show downloaded files
+        run: ls -la installers
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "BicycleSharing ${{ github.ref_name }}"
+          body: |
+            ## BicycleSharing ${{ github.ref_name }}
+
+            Інсталятори для різних операційних систем:
+
+            | Платформа | Файл |
+            |---|---|
+            | Windows | `.msi` |
+            | macOS Intel | `BicycleSharing-macOS-Intel.dmg` |
+            | macOS Apple Silicon | `BicycleSharing-macOS-AppleSilicon.dmg` |
+            | Linux Ubuntu/Debian | `.deb` |
+
+          files: installers/*
+          draft: false
+          prerelease: false
